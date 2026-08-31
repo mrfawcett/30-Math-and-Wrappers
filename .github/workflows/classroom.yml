@@ -1,0 +1,116 @@
+name: Autograding Tests
+'on':
+  - push
+  - workflow_dispatch
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Integrity check - tests, pom.xml and grading.json must be unchanged
+        run: |
+          EXPECTED="5c1ea02e328040cad4c6fa92392024ce5ff0e8d9e39d2c6a967814346d97581c"
+          ACTUAL=$( (for f in $(find src/test/java -type f -name '*.java' | LC_ALL=C sort) pom.xml grading.json; do sed 's/\r$//' "$f"; done) | sha256sum | cut -d' ' -f1)
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::The test files, pom.xml, or grading.json in this repository differ from the assignment template. Grading has been stopped. Restore the original files (git checkout origin/main -- src/test pom.xml grading.json) and push again."
+            exit 1
+          fi
+          echo "Integrity check passed."
+      - name: "Dice.roll (10)"
+        id: diceroll
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Dice.roll"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=DiceRollTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 10
+      - name: "Dice.rollTwo (7)"
+        id: dicerolltwo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Dice.rollTwo"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=DiceRollTwoTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 7
+      - name: "Dice.rollInRange (8)"
+        id: dicerollinrange
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Dice.rollInRange"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=DiceRollInRangeTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 8
+      - name: "Rounding.round2 (8)"
+        id: round2
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Rounding.round2"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=Round2Test -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 8
+      - name: "Rounding.roundToInt and chop (12)"
+        id: roundtointchop
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Rounding.roundToInt and chop"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=RoundToIntChopTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 12
+      - name: "Rounding.hypotenuse, digitsIn and toCelsius (15)"
+        id: mathhelpers
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Rounding.hypotenuse, digitsIn and toCelsius"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=MathHelpersTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 15
+      - name: "Wrappers.sumOfList, countValue and largest (22)"
+        id: wrapperslist
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Wrappers.sumOfList, countValue and largest"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=WrappersListTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 22
+      - name: "Wrappers.parseAndAdd, parseAverage and isMaxValue (18)"
+        id: wrappersparse
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Wrappers.parseAndAdd, parseAverage and isMaxValue"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=WrappersParseTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 18
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          DICEROLL_RESULTS: "${{ steps.diceroll.outputs.result }}"
+          DICEROLLTWO_RESULTS: "${{ steps.dicerolltwo.outputs.result }}"
+          DICEROLLINRANGE_RESULTS: "${{ steps.dicerollinrange.outputs.result }}"
+          ROUND2_RESULTS: "${{ steps.round2.outputs.result }}"
+          ROUNDTOINTCHOP_RESULTS: "${{ steps.roundtointchop.outputs.result }}"
+          MATHHELPERS_RESULTS: "${{ steps.mathhelpers.outputs.result }}"
+          WRAPPERSLIST_RESULTS: "${{ steps.wrapperslist.outputs.result }}"
+          WRAPPERSPARSE_RESULTS: "${{ steps.wrappersparse.outputs.result }}"
+        with:
+          runners: diceroll,dicerolltwo,dicerollinrange,round2,roundtointchop,mathhelpers,wrapperslist,wrappersparse

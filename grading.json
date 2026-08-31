@@ -1,0 +1,10 @@
+[
+ {"test": "DiceRollTest",         "name": "Dice.roll",                                   "points": 10},
+ {"test": "DiceRollTwoTest",      "name": "Dice.rollTwo",                                "points": 7},
+ {"test": "DiceRollInRangeTest",  "name": "Dice.rollInRange",                            "points": 8},
+ {"test": "Round2Test",           "name": "Rounding.round2",                             "points": 8},
+ {"test": "RoundToIntChopTest",   "name": "Rounding.roundToInt and chop",                "points": 12},
+ {"test": "MathHelpersTest",      "name": "Rounding.hypotenuse, digitsIn and toCelsius", "points": 15},
+ {"test": "WrappersListTest",     "name": "Wrappers.sumOfList, countValue and largest",  "points": 22},
+ {"test": "WrappersParseTest",    "name": "Wrappers.parseAndAdd, parseAverage and isMaxValue", "points": 18}
+]
