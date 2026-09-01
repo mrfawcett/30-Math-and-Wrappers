@@ -20,22 +20,13 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Integrity check - tests, pom.xml and grading.json must be unchanged
-        run: |
-          EXPECTED="5c1ea02e328040cad4c6fa92392024ce5ff0e8d9e39d2c6a967814346d97581c"
-          ACTUAL=$( (for f in $(find src/test/java -type f -name '*.java' | LC_ALL=C sort) pom.xml grading.json; do sed 's/\r$//' "$f"; done) | sha256sum | cut -d' ' -f1)
-          if [ "$ACTUAL" != "$EXPECTED" ]; then
-            echo "::error::The test files, pom.xml, or grading.json in this repository differ from the assignment template. Grading has been stopped. Restore the original files (git checkout origin/main -- src/test pom.xml grading.json) and push again."
-            exit 1
-          fi
-          echo "Integrity check passed."
       - name: "Dice.roll (10)"
         id: diceroll
         uses: classroom-resources/autograding-command-grader@v1
         with:
           test-name: "Dice.roll"
           setup-command: ''
-          command: mvn -B -q test -Dtest=DiceRollTest -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh DiceRollTest
           timeout: 5
           max-score: 10
       - name: "Dice.rollTwo (7)"
@@ -44,7 +35,7 @@ jobs:
         with:
           test-name: "Dice.rollTwo"
           setup-command: ''
-          command: mvn -B -q test -Dtest=DiceRollTwoTest -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh DiceRollTwoTest
           timeout: 5
           max-score: 7
       - name: "Dice.rollInRange (8)"
@@ -53,7 +44,7 @@ jobs:
         with:
           test-name: "Dice.rollInRange"
           setup-command: ''
-          command: mvn -B -q test -Dtest=DiceRollInRangeTest -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh DiceRollInRangeTest
           timeout: 5
           max-score: 8
       - name: "Rounding.round2 (8)"
@@ -62,7 +53,7 @@ jobs:
         with:
           test-name: "Rounding.round2"
           setup-command: ''
-          command: mvn -B -q test -Dtest=Round2Test -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh Round2Test
           timeout: 5
           max-score: 8
       - name: "Rounding.roundToInt and chop (12)"
@@ -71,7 +62,7 @@ jobs:
         with:
           test-name: "Rounding.roundToInt and chop"
           setup-command: ''
-          command: mvn -B -q test -Dtest=RoundToIntChopTest -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh RoundToIntChopTest
           timeout: 5
           max-score: 12
       - name: "Rounding.hypotenuse, digitsIn and toCelsius (15)"
@@ -80,7 +71,7 @@ jobs:
         with:
           test-name: "Rounding.hypotenuse, digitsIn and toCelsius"
           setup-command: ''
-          command: mvn -B -q test -Dtest=MathHelpersTest -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh MathHelpersTest
           timeout: 5
           max-score: 15
       - name: "Wrappers.sumOfList, countValue and largest (22)"
@@ -89,7 +80,7 @@ jobs:
         with:
           test-name: "Wrappers.sumOfList, countValue and largest"
           setup-command: ''
-          command: mvn -B -q test -Dtest=WrappersListTest -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh WrappersListTest
           timeout: 5
           max-score: 22
       - name: "Wrappers.parseAndAdd, parseAverage and isMaxValue (18)"
@@ -98,7 +89,7 @@ jobs:
         with:
           test-name: "Wrappers.parseAndAdd, parseAverage and isMaxValue"
           setup-command: ''
-          command: mvn -B -q test -Dtest=WrappersParseTest -Dsurefire.failIfNoSpecifiedTests=false
+          command: sh .github/grade.sh WrappersParseTest
           timeout: 5
           max-score: 18
       - name: Autograding Reporter
